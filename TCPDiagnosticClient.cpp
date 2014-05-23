@@ -53,7 +53,9 @@ void TCPDiagnosticClient::getNextMessage() {
 
 void TCPDiagnosticClient::handleMessage(const boost::system::error_code& error) {
 	if (!error) {
-		std::cerr << boost::asio::buffer_cast<const char*>(message_buffer.data());
+		const char* ptr = boost::asio::buffer_cast<const char*>(message_buffer.data());
+		string str(ptr, ptr + message_buffer.size());
+		std::cerr << str;
 		message_buffer.consume(message_buffer.size());
 
 		getNextMessage();
