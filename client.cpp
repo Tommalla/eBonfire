@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 								boost::asio::ip::resolver_query_base::flags()};
 			asio::ip::udp::resolver::iterator udpIter = udpResolver.resolve(udpQuery);
 
-			UDPClient udpClient{io_service, port, *udpIter};
+			UDPClient udpClient{io_service, *udpIter};
 			TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
 
 			io_service.run();
