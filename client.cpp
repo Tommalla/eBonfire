@@ -8,6 +8,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "UDPClient.hpp"
+#include "TCPDiagnosticClient.hpp"
 
 using std::string;
 using std::cout;
@@ -50,8 +51,20 @@ int main(int argc, char** argv) {
 		try
 		{
 			asio::io_service io_service;
-			asio::ip::udp::endpoint udpEndpoint{asio::ip::address::from_string(serverName), port};
-			UDPClient client{io_service, port, udpEndpoint};
+
+			asio::ip::tcp::resolver tcpResolver{io_service};
+			asio::ip::tcp::resolver::query tcpQuery{serverName, boost::lexical_cast<string>(port),
+								boost::asio::ip::resolver_query_base::flags()};
+			asio::ip::tcp::resolver::iterator tcpIter = tcpResolver.resolve(tcpQuery);
+
+			asio::ip::udp::resolver udpResolver{io_service};
+			asio::ip::udp::resolver::query udpQuery{serverName, boost::lexical_cast<string>(port),
+								boost::asio::ip::resolver_query_base::flags()};
+			asio::ip::udp::resolver::iterator udpIter = udpResolver.resolve(udpQuery);
+
+			UDPClient udpClient{io_service, port, *udpIter};
+			TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
+
 			io_service.run();
 		}
 		catch (std::exception& e)

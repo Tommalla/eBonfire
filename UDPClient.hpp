@@ -17,9 +17,9 @@ public:
 	UDPClient(boost::asio::io_service& io_service, const uint16_t& port,
 		  const boost::asio::ip::udp::endpoint& targetEndpoint);
 
+	void initUDP(const uint32_t& clientId);
 private:
 	void start_receive();
-	void initUDP(const uint32_t& clientId);
 
 	void handle_receive(const boost::system::error_code& error,
 		    std::size_t length);

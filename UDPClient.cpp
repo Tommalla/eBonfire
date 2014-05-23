@@ -8,10 +8,10 @@ UDPClient::UDPClient(asio::io_service& io_service, const uint16_t& port,
 		     const asio::ip::udp::endpoint& targetEndpoint)
 : socket{io_service, asio::ip::udp::endpoint{asio::ip::address::from_string("127.0.0.1"), port}}	// FIXME
 , targetEndpoint{targetEndpoint} {
-	start_receive();
 }
 
 void UDPClient::initUDP(const uint32_t& clientId) {
+	start_receive();
 	boost::shared_ptr<std::string> msg(new string("CLIENT " + std::to_string(clientId) + "\n"));
 
 	socket.async_send_to(boost::asio::buffer(*msg), targetEndpoint,
