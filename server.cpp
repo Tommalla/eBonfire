@@ -1,11 +1,13 @@
 /* Tomasz Zakrzewski, tz336079
  * SIK2013/2014, eBonfire
  */
+#include <functional>
 #include <iostream>
 #include <boost/program_options.hpp>
 
 #include "common.hpp"
 #include "TCPDiagnosticServer.hpp"
+#include "ConnectionsController.hpp"
 #include "logger.hpp"
 
 using std::cout;
@@ -46,7 +48,8 @@ int main(int argc, char **argv) {
 	try {
 		boost::asio::io_service ioService;
 
-		TCPDiagnosticServer tcpServer{ioService, port};
+		ConnectionsController connectionsController;
+		TCPDiagnosticServer tcpServer{ioService, port, std::bind(&ConnectionsController::registerTCPClient, &connectionsController, std::placeholders::_1)};
 
 		ioService.run();
 	} catch (const std::exception& e) {

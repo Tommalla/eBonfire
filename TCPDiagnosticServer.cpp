@@ -8,10 +8,11 @@ using std::shared_ptr;
 using std::cerr;
 using namespace boost::asio;
 
-TCPDiagnosticServer::TCPDiagnosticServer(boost::asio::io_service& io_service, const uint16_t& port)
+TCPDiagnosticServer::TCPDiagnosticServer(boost::asio::io_service& io_service, const uint16_t& port, const RegisterFunc& registerFunc)
 : io_service(io_service)
 , acceptor{io_service, ip::tcp::endpoint(ip::tcp::v6(), port)}
-, timer{io_service, boost::posix_time::seconds(1)} {
+, timer{io_service, boost::posix_time::seconds(1)}
+, registerFunc{registerFunc} {
 	startAccepting();
 }
 
@@ -25,8 +26,9 @@ void TCPDiagnosticServer::startAccepting() {
 
 void TCPDiagnosticServer::handleAccept(shared_ptr<ip::tcp::socket> socket, const boost::system::error_code& error) {
 	if (!error) {
-		//TODO create a new client
-		logger::info << "TCP: A new client has connected!\n";
+		ClientId id = registerFunc(socket);
+		auto message = "CLIENT " + std::to_string(id) + "\n";
+		boost::asio::write(*socket, boost::asio::buffer(message));
 	}
 
 	startAccepting();
