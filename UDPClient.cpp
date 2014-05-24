@@ -1,4 +1,9 @@
+/* Tomasz Zakrzewski, tz336079
+ * SIK2013/2014, eBonfire
+ */
 #include <iostream>
+#include <string>
+
 #include "UDPClient.hpp"
 
 using std::string;
@@ -15,7 +20,7 @@ UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint
 	socket.open(asio::ip::udp::v6());
 }
 
-void UDPClient::initUDP(const uint32_t& clientId) {
+void UDPClient::initUDP(const ClientId& clientId) {
 	keepaliveTimer.async_wait(boost::bind(&UDPClient::sendKeepalive, this));
 	connectionTimer.async_wait(boost::bind(&UDPClient::checkConnection, this));
 

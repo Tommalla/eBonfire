@@ -2,9 +2,9 @@
  * SIK2013/2014, eBonfire
  */
 #include <iostream>
-
 #include <boost/program_options.hpp>
 
+#include "common.hpp"
 #include "TCPDiagnosticServer.hpp"
 
 using std::cout;
@@ -12,12 +12,13 @@ using std::cerr;
 using namespace boost;
 
 int main(int argc, char **argv) {
-	uint16_t port, fifoSize, fifoLow, fifoHigh, bufferLength, txInterval;
+	Port port;
+	uint16_t fifoSize, fifoLow, fifoHigh, bufferLength, txInterval;
 
 	program_options::options_description description("Program options");
 	description.add_options()
 	("help,h", "help")
-	(",p", program_options::value<uint16_t>(&port)->default_value(10000 + (336079 % 10000)), "port number")
+	(",p", program_options::value<Port>(&port)->default_value(10000 + (336079 % 10000)), "port number")
 	(",F", program_options::value<uint16_t>(&fifoSize)->default_value(10560), "FIFO size")
 	(",L", program_options::value<uint16_t>(&fifoLow)->default_value(0), "FIFO low watermark")
 	(",H", program_options::value<uint16_t>(), "FIFO high watermark")

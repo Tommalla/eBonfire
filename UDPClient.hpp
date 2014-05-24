@@ -5,18 +5,18 @@
 #define UDP_CLIENT_HPP
 
 #include <ctime>
-#include <iostream>
-#include <string>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 
+#include "common.hpp"
+
 class UDPClient {
 public:
 	UDPClient(boost::asio::io_service& io_service, const boost::asio::ip::udp::endpoint& targetEndpoint);
+	void initUDP(const ClientId& clientId);
 
-	void initUDP(const uint32_t& clientId);
 private:
 	void handleClientStarted(const boost::system::error_code& error /*bytes_transferred*/);
 	void startReceive();

@@ -7,6 +7,7 @@
 #include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp>
 
+#include "common.hpp"
 #include "UDPClient.hpp"
 #include "TCPDiagnosticClient.hpp"
 
@@ -17,13 +18,14 @@ using namespace boost;
 
 int main(int argc, char** argv) {
 	string serverName;
-	uint16_t port, retransmitLimit;
+	Port port;
+	uint16_t retransmitLimit;
 	program_options::options_description description("Program options");
 
 	try {
 		description.add_options()
 		("help,h", "help")
-		(",p", program_options::value<uint16_t>(&port)->default_value(10000 + (336079 % 10000)), "port number")
+		(",p", program_options::value<Port>(&port)->default_value(10000 + (336079 % 10000)), "port number")
 		(",s", program_options::value<string>(&serverName)->required(), "server address")
 		(",X", program_options::value<uint16_t>(&retransmitLimit)->default_value(10), "retransmit limit");
 
@@ -42,11 +44,7 @@ int main(int argc, char** argv) {
 
 
 		//TODO
-		//establish connection:
-		//  - connect on TCP [later]
-		//  - get clientid [later]
-		//  - connect to udp
-		//- read data line by line from udp
+		// retransmission
 
 		try
 		{
