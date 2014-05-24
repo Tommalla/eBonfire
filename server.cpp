@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 		boost::asio::io_service ioService;
 
 		ConnectionsController connectionsController;
-		TCPDiagnosticServer tcpServer{ioService, port, std::bind(&ConnectionsController::registerTCPClient, &connectionsController, std::placeholders::_1)};
+		TCPDiagnosticServer tcpServer{ioService, port, &connectionsController};
 
 		ioService.run();
 	} catch (const std::exception& e) {

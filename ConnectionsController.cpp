@@ -30,5 +30,8 @@ void ConnectionsController::registerUDPClient(const ClientId& clientId, const bo
 	clientsMap.at(clientId)->udpEndpoint = endpoint;
 }
 
+ConnectionsController::ClientContainer& ConnectionsController::getClients() {
+	return clientsMap;
+}
 
 
