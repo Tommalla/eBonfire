@@ -6,9 +6,9 @@
 
 #include "common.hpp"
 #include "TCPDiagnosticServer.hpp"
+#include "logger.hpp"
 
 using std::cout;
-using std::cerr;
 using namespace boost;
 
 int main(int argc, char **argv) {
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 	else
 		fifoHigh = fifoSize;
 
-	cerr << "PORT: " << port << "\nFIFO SIZE: " << fifoSize << "\nFIFO LOW WATERMARK: "
+	logger::info << "PORT: " << port << "\nFIFO SIZE: " << fifoSize << "\nFIFO LOW WATERMARK: "
 	<< fifoLow << " FIFO HIGH WATERMARK: " << fifoHigh << "\nBUF LEN: "
 	<< bufferLength << " TX INTERVAL: " << txInterval << "\n";
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
 		ioService.run();
 	} catch (const std::exception& e) {
-		cerr << e.what() << "\n";
+		logger::error << e.what() << "\n";
 	}
 
 	return 0;

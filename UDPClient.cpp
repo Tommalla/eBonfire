@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include "logger.hpp"
 #include "UDPClient.hpp"
 
 using std::string;
@@ -37,7 +38,7 @@ void UDPClient::handleClientStarted(const system::error_code& error) {
 	if (!error)
 		startReceive();
 	else
-		std::cerr << "Error in handleClientStarted\n";
+		logger::error << "Error in handleClientStarted\n";
 }
 
 void UDPClient::startReceive() {
@@ -61,7 +62,7 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 
 		auto pos = std::find(data, data + length, '\n');
 		if (pos == data + length)
-			std::cerr << "Received bad DATA.";
+			logger::warn << "Received bad DATA.";
 		else
 			std::cout << string{pos + 1, data + length};
 
@@ -73,7 +74,7 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 		if (lastAck == lastId && lastWin > 0 && !isReading)
 			readInput();
 	} else {
-		std::cerr << "Bad message: " << command << '\n';
+		logger::warn << "Bad message: " << command << '\n';
 	}
 
 	startReceive();

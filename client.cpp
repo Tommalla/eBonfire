@@ -10,10 +10,10 @@
 #include "common.hpp"
 #include "UDPClient.hpp"
 #include "TCPDiagnosticClient.hpp"
+#include "logger.hpp"
 
 using std::string;
 using std::cout;
-using std::cerr;
 using namespace boost;
 
 int main(int argc, char** argv) {
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
 		program_options::notify(vars);
 
-		cerr << "SERVER: " << serverName << "\n" << "PORT: "
+		logger::info << "SERVER: " << serverName << "\n" << "PORT: "
 		<< port << " " << "RETRANSMIT LIMIT: " << retransmitLimit << "\n";
 
 
@@ -64,16 +64,12 @@ int main(int argc, char** argv) {
 			TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
 
 			io_service.run();
-		}
-		catch (std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
+		} catch (std::exception& e) {
+			logger::error << e.what() << "\n";
 		}
 
-	} catch(program_options::error& e)
-	{
-		std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
-		std::cerr << description << std::endl;
+	} catch(program_options::error& e) {
+		logger::error << e.what() << "\n\n" << description << "\n";
 		return -1;
 	}
 

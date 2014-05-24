@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "TCPDiagnosticClient.hpp"
+#include "logger.hpp"
 
 using std::string;
 using std::istringstream;
@@ -34,7 +35,7 @@ void TCPDiagnosticClient::handleHeader(const boost::system::error_code& error) {
 
 		istringstream input(boost::asio::buffer_cast<const char*>(message_buffer.data()));
 		input >> command >> clientId;
-		std::cerr << command << " " << clientId << std::endl;
+		logger::info << command << " " << clientId << std::endl;
 
 		clientCallback(clientId);
 
@@ -55,7 +56,7 @@ void TCPDiagnosticClient::handleMessage(const boost::system::error_code& error) 
 	if (!error) {
 		const char* ptr = boost::asio::buffer_cast<const char*>(message_buffer.data());
 		string str(ptr, ptr + message_buffer.size());
-		std::cerr << str;
+		logger::info << str;
 		message_buffer.consume(message_buffer.size());
 
 		getNextMessage();

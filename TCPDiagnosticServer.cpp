@@ -2,6 +2,7 @@
  * SIK2013/2014, eBonfire
  */
 #include "TCPDiagnosticServer.hpp"
+#include "logger.hpp"
 
 using std::shared_ptr;
 using std::cerr;
@@ -25,7 +26,7 @@ void TCPDiagnosticServer::startAccepting() {
 void TCPDiagnosticServer::handleAccept(shared_ptr<ip::tcp::socket> socket, const boost::system::error_code& error) {
 	if (!error) {
 		//TODO create a new client
-		cerr << "TCP: A new client has connected!\n";
+		logger::info << "TCP: A new client has connected!\n";
 	}
 
 	startAccepting();

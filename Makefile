@@ -2,7 +2,7 @@
 .PHONY = clean
 
 CXX_FLAGS = -std=c++11 -ggdb -Wall -lboost_system -lpthread -lboost_program_options
-COMMON = common.hpp
+COMMON = common.hpp logger.hpp
 
 all: client server
 
