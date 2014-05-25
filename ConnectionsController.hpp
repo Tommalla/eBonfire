@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <list>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -25,6 +26,7 @@ public:
 	void registerUDPClient(const ClientId& clientId, const boost::asio::ip::udp::endpoint& endpoint);
 	void removeClient(ClientContainer::iterator iter);
 	ClientContainer& getClients();
+	std::list<Queue*> getQueues(bool activeOnly=false) const;
 
 private:
 	ClientId nextId;

@@ -10,8 +10,8 @@
 #include "Queue.hpp"
 
 struct ClientInfo {
-	ClientInfo(const size_t& fifoSize)
-	: queue{fifoSize} {}
+	ClientInfo(const size_t& fifoSize, const size_t& lowMark, const size_t& highMark)
+	: queue{fifoSize, lowMark, highMark}{}
 
 	std::shared_ptr<boost::asio::ip::tcp::socket> tcpSocket;
 	boost::asio::ip::udp::endpoint udpEndpoint;

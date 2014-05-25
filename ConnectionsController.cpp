@@ -5,6 +5,7 @@
 #include "logger.hpp"
 
 using std::shared_ptr;
+using std::list;
 
 ConnectionsController::ConnectionsController(const size_t& fifoSize, const size_t& fifoLow, const size_t& fifoHigh)
 : nextId{0}
@@ -13,7 +14,7 @@ ConnectionsController::ConnectionsController(const size_t& fifoSize, const size_
 , fifoHigh{fifoHigh} {}
 
 ClientId ConnectionsController::registerTCPClient(shared_ptr< boost::asio::ip::tcp::socket > socket) {
-	auto ptr = shared_ptr<ClientInfo>{new ClientInfo{fifoSize}};
+	auto ptr = shared_ptr<ClientInfo>{new ClientInfo{fifoSize, fifoLow, fifoHigh}};
 	ptr->tcpSocket = socket;
 	clientsMap[nextId++] = ptr;
 	logger::info << "New client with id " << nextId - 1 << "\n";
@@ -47,5 +48,16 @@ void ConnectionsController::removeClient(ClientContainer::iterator iter) {
 ConnectionsController::ClientContainer& ConnectionsController::getClients() {
 	return clientsMap;
 }
+
+list<Queue*> ConnectionsController::getQueues(bool activeOnly) const {
+	list<Queue*> res;
+	for (const auto& k: clientsMap) {
+		if (!activeOnly || k.second->queue.isActive())
+			res.push_back(&k.second->queue);
+	}
+
+	return res;
+}
+
 
 

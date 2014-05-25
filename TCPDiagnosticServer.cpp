@@ -11,7 +11,8 @@
 using std::list;
 using std::shared_ptr;
 using std::cerr;
-using std::string;;
+using std::string;
+using std::to_string;
 using namespace boost::asio;
 
 TCPDiagnosticServer::TCPDiagnosticServer(boost::asio::io_service& io_service, const Port& port, ConnectionsController* connectionsController)
@@ -48,8 +49,11 @@ void TCPDiagnosticServer::sendStats() {
 
 	for (auto iter = begin(clients); iter != end(clients);) {
 		boost::system::error_code error;
+		auto stats = iter->second->queue.getStats();
+		string statsString = to_string(stats.end) + "/" + to_string(stats.size)
+			+ " (min. " + to_string(stats.minSize) + ", max. " + to_string(stats.maxSize) + ")";
 		string part = boost::lexical_cast<string>(iter->second->tcpSocket->remote_endpoint(error))
-		+ " TODO - stats\n";
+			+ statsString + "\n";
 
 		if (error) {
 			auto copy = iter;
