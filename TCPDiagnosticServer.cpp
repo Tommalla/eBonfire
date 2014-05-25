@@ -53,7 +53,7 @@ void TCPDiagnosticServer::sendStats() {
 		string statsString = to_string(stats.end) + "/" + to_string(stats.size)
 			+ " (min. " + to_string(stats.minSize) + ", max. " + to_string(stats.maxSize) + ")";
 		string part = boost::lexical_cast<string>(iter->second->tcpSocket->remote_endpoint(error))
-			+ statsString + "\n";
+			+ " " + statsString + "\n";
 
 		if (error) {
 			auto copy = iter;

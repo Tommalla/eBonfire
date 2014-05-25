@@ -9,6 +9,7 @@
 #include "TCPDiagnosticServer.hpp"
 #include "UDPServer.hpp"
 #include "ConnectionsController.hpp"
+#include "MixerController.hpp"
 #include "logger.hpp"
 
 using std::cout;
@@ -52,7 +53,8 @@ int main(int argc, char **argv) {
 
 		ConnectionsController connectionsController{fifoSize, fifoLow, fifoHigh};
 		TCPDiagnosticServer tcpServer{ioService, port, &connectionsController};
-		UDPServer udpServer{ioService, port, &connectionsController};
+		UDPServer udpServer{ioService, port, bufferLength, &connectionsController};
+		MixerController mixerController{ioService, &connectionsController, txInterval, std::bind(&UDPServer::handleDataProduced, &udpServer, std::placeholders::_1)};
 
 		ioService.run();
 	} catch (const std::exception& e) {

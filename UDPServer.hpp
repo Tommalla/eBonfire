@@ -14,7 +14,8 @@
 
 class UDPServer {
 public:
-	UDPServer(boost::asio::io_service& io_service, const Port& port, ConnectionsController* connectionsController);
+	UDPServer(boost::asio::io_service& io_service, const Port& port, const size_t& bufferLength, ConnectionsController* connectionsController);
+	void handleDataProduced(std::string data);
 
 private:
 	void startReceive();
@@ -24,6 +25,9 @@ private:
 	boost::asio::ip::udp::socket socket;
 	boost::asio::ip::udp::endpoint remoteEndpoint;
 	boost::array<char, 1<<16> messageBuffer;
+	const size_t bufferLength;
+	size_t nextDataId;
+	std::unordered_map<size_t, std::string> serverBuffer;
 };
 
 #endif // UDP_SERVER_HPP

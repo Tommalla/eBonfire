@@ -19,10 +19,12 @@ public:
 	~Queue();
 
 	void addData(char* data, const size_t& length);
+	const char* getData() const;
 	void consume(const size_t& qty);
 	Stats getStats();
 	bool isActive() const;
 	size_t getFreeSpace() const;
+	size_t getLength() const;
 
 private:
 	size_t size, end, minSize, maxSize, lowMark, highMark;

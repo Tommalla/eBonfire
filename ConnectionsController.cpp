@@ -31,7 +31,9 @@ void ConnectionsController::registerUDPClient(const ClientId& clientId, const bo
 		return;
 	}
 
-	clientsMap.at(clientId)->udpEndpoint = endpoint;
+	auto client = clientsMap.at(clientId);
+	client->udpEndpoint = endpoint;
+	client->isUDPReady = true;
 	idMap[endpoint] = clientId;
 
 	logger::info << "Register client's " << clientId << " UDP endpoint\n";

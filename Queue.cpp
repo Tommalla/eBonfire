@@ -26,8 +26,12 @@ void Queue::addData(char* data, const size_t& length) {
 	maxSize = std::max(maxSize, end);
 }
 
+const char* Queue::getData() const {
+	return container;
+}
+
 void Queue::consume(const size_t& qty) {
-	memmove(container, container, end - qty);
+	memmove(container, container + qty, end - qty);
 	end -= qty;
 	if (end <= lowMark)
 		active = false;
@@ -51,5 +55,10 @@ bool Queue::isActive() const {
 size_t Queue::getFreeSpace() const {
 	return size - end;
 }
+
+size_t Queue::getLength() const {
+	return end;
+}
+
 
 

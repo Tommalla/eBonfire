@@ -9,10 +9,29 @@ using std::string;
 using std::to_string;
 using namespace boost::asio::ip;
 
-UDPServer::UDPServer(boost::asio::io_service& io_service, const Port& port, ConnectionsController* connectionsController)
+UDPServer::UDPServer(boost::asio::io_service& io_service, const Port& port, const size_t& bufferLength, ConnectionsController* connectionsController)
 : connectionsController{connectionsController}
-, socket{io_service, udp::endpoint(udp::v6(), port)} {
+, socket{io_service, udp::endpoint(udp::v6(), port)}
+, bufferLength{bufferLength}
+, nextDataId{0} {
 	startReceive();
+}
+
+void UDPServer::handleDataProduced(string data) {
+	logger::info << "handleDataProduced\n";
+	auto& clients = connectionsController->getClients();
+	for (auto client: clients)
+		if (client.second->isUDPReady) {
+			string header = "DATA " + to_string(nextDataId)
+				+ " " + to_string(client.second->ack) + " " + to_string(client.second->queue.getFreeSpace()) + "\n";
+			socket.send_to(boost::asio::buffer(header + data), client.second->udpEndpoint);
+		}
+
+	serverBuffer[nextDataId] = data;
+	auto iter = serverBuffer.find(nextDataId - bufferLength);
+	if (iter != serverBuffer.end())	//remove too old data
+		serverBuffer.erase(iter);
+	nextDataId++;
 }
 
 void UDPServer::startReceive() {
@@ -40,6 +59,7 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 				uint16_t nr;
 				input >> nr;
 				auto client = connectionsController->getClients().at(clientId->second);
+
 				if (client->ack != nr)
 					logger::warn << "Received an unwanted UPLOAD from " << clientId->second << "\nExpected: " <<
 						client->ack << " Got: " << nr << "\n";
@@ -48,7 +68,10 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 					if (pos == data + size)
 						logger::warn << "Bad UPLOAD\n";
 					else
-						client->queue.addData(pos + 1, size);
+						client->queue.addData(pos + 1, size - (pos - data + 1));
+
+					logger::info << "Received " << size << " bytes of data from " << clientId->second << "\nSending ack for free space: " << client->queue.getFreeSpace() <<
+						" length: " << client->queue.getLength() << "\n";
 
 					client->ack = nr + 1;
 
