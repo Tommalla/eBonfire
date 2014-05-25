@@ -70,7 +70,7 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 			logger::warn << "Received bad DATA.";
 		else {
 			std::cout << string{pos + 1, data + length};
-			logger::info << "Received DATA with ACK: " << lastAck << "(lastId = " << lastId << ") and win: " << lastWin << "\n";
+// 			logger::info << "Received DATA ld:" << lastData << " ACK: " << lastAck << " win: " << lastWin << "\n" << data <<"\n";
 		}
 
 		if (lastAck == lastId && lastWin > 0 && !isReading)

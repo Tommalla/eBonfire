@@ -18,10 +18,10 @@ UDPServer::UDPServer(boost::asio::io_service& io_service, const Port& port, cons
 }
 
 void UDPServer::handleDataProduced(string data) {
-	logger::info << "handleDataProduced\n";
 	auto& clients = connectionsController->getClients();
 	for (auto client: clients)
 		if (client.second->isUDPReady) {
+			logger::info << "Sending DATA with win: " << client.second->queue.getFreeSpace() << "\n";
 			string header = "DATA " + to_string(nextDataId)
 				+ " " + to_string(client.second->ack) + " " + to_string(client.second->queue.getFreeSpace()) + "\n";
 			socket.send_to(boost::asio::buffer(header + data), client.second->udpEndpoint);
@@ -56,7 +56,7 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 			connectionsController->registerUDPClient(id, remoteEndpoint);
 		} else if ((clientId = connectionsController->getIds().find(remoteEndpoint)) != connectionsController->getIds().end()) {	//client is connected
 			if (command == "UPLOAD") {
-				uint16_t nr;
+				size_t nr;
 				input >> nr;
 				auto client = connectionsController->getClients().at(clientId->second);
 
@@ -70,8 +70,8 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 					else
 						client->queue.addData(pos + 1, size - (pos - data + 1));
 
-					logger::info << "Received " << size << " bytes of data from " << clientId->second << "\nSending ack for free space: " << client->queue.getFreeSpace() <<
-						" length: " << client->queue.getLength() << "\n";
+// 					logger::info << "Received " << size << " bytes of data from " << clientId->second << "\nSending ack for free space: " << client->queue.getFreeSpace() <<
+// 						" length: " << client->queue.getLength() << "\n";
 
 					client->ack = nr + 1;
 

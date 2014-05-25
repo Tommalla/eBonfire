@@ -33,7 +33,7 @@ private:
 	boost::array<char, 12000> inputBuffer;
 	boost::asio::posix::stream_descriptor dataInput;
 	bool isReading, isAlive;
-	uint16_t lastAck, lastWin, lastData, lastId;
+	size_t lastData, lastId, lastAck, lastWin;
 	boost::asio::deadline_timer keepaliveTimer, connectionTimer;
 };
 
