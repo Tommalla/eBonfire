@@ -10,11 +10,14 @@ all: client server
 client: UDPClient.o TCPDiagnosticClient.o client.cpp $(COMMON)
 	g++ $(CXX_FLAGS) client.cpp UDPClient.o TCPDiagnosticClient.o -o client
 
-server: TCPDiagnosticServer.o ConnectionsController.o server.cpp $(COMMON)
-	g++ $(CXX_FLAGS) server.cpp TCPDiagnosticServer.o ConnectionsController.o -o server
+server: UDPServer.o TCPDiagnosticServer.o ConnectionsController.o server.cpp $(COMMON)
+	g++ $(CXX_FLAGS) server.cpp UDPServer.o TCPDiagnosticServer.o ConnectionsController.o -o server
 
 UDPClient.o: UDPClient.hpp UDPClient.cpp $(COMMON)
 	g++ $(CXX_FLAGS) -c UDPClient.cpp -o UDPClient.o
+
+UDPServer.o: UDPServer.hpp UDPServer.cpp $(COMMON)
+	g++ $(CXX_FLAGS) -c UDPServer.cpp -o UDPServer.o
 
 TCPDiagnosticClient.o: TCPDiagnosticClient.hpp TCPDiagnosticClient.cpp $(COMMON)
 	g++ $(CXX_FLAGS) -c TCPDiagnosticClient.cpp -o TCPDiagnosticClient.o

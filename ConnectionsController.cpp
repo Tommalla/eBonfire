@@ -28,7 +28,18 @@ void ConnectionsController::registerUDPClient(const ClientId& clientId, const bo
 	}
 
 	clientsMap.at(clientId)->udpEndpoint = endpoint;
+	idMap[endpoint] = clientId;
+
+	logger::info << "Register client's " << clientId << " UDP endpoint\n";
 }
+
+void ConnectionsController::removeClient(ClientContainer::iterator iter) {
+	auto it = idMap.find(iter->second->udpEndpoint);
+	logger::info << "Removing client " << it->second << "\n";
+	idMap.erase(it);
+	clientsMap.erase(iter);
+}
+
 
 ConnectionsController::ClientContainer& ConnectionsController::getClients() {
 	return clientsMap;

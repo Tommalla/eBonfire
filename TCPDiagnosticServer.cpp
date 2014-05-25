@@ -14,7 +14,7 @@ using std::cerr;
 using std::string;;
 using namespace boost::asio;
 
-TCPDiagnosticServer::TCPDiagnosticServer(boost::asio::io_service& io_service, const uint16_t& port, ConnectionsController* connectionsController)
+TCPDiagnosticServer::TCPDiagnosticServer(boost::asio::io_service& io_service, const Port& port, ConnectionsController* connectionsController)
 : connectionsController{connectionsController}
 , io_service(io_service)
 , acceptor{io_service, ip::tcp::endpoint(ip::tcp::v6(), port)}
@@ -54,13 +54,12 @@ void TCPDiagnosticServer::sendStats() {
 		if (error) {
 			auto copy = iter;
 			++copy;
-			clients.erase(iter);
+			connectionsController->removeClient(iter);
 			iter = copy;
 		} else {
 			++iter;
 			message += part;
 		}
-
 	}
 
 	logger::info << "Sending to all clients: " << message;

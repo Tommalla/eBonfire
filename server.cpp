@@ -7,6 +7,7 @@
 
 #include "common.hpp"
 #include "TCPDiagnosticServer.hpp"
+#include "UDPServer.hpp"
 #include "ConnectionsController.hpp"
 #include "logger.hpp"
 
@@ -50,6 +51,7 @@ int main(int argc, char **argv) {
 
 		ConnectionsController connectionsController;
 		TCPDiagnosticServer tcpServer{ioService, port, &connectionsController};
+		UDPServer udpServer{ioService, port, &connectionsController};
 
 		ioService.run();
 	} catch (const std::exception& e) {

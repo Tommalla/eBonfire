@@ -18,15 +18,18 @@
 class ConnectionsController {
 public:
 	typedef std::unordered_map<ClientId, std::shared_ptr<ClientInfo>> ClientContainer;
+	typedef std::map<boost::asio::ip::udp::endpoint, ClientId> IdContainer;
 
 	ConnectionsController();
 	ClientId registerTCPClient(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 	void registerUDPClient(const ClientId& clientId, const boost::asio::ip::udp::endpoint& endpoint);
+	void removeClient(ClientContainer::iterator iter);
 	ClientContainer& getClients();
 
 private:
 	ClientId nextId;
-	std::unordered_map<ClientId, std::shared_ptr<ClientInfo>> clientsMap;
+	ClientContainer clientsMap;
+	IdContainer idMap;
 };
 
 #endif // CONNECTIONS_CONTROLLER_HPP

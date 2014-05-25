@@ -17,7 +17,7 @@
 class TCPDiagnosticServer {
 	typedef boost::asio::ip::tcp::socket TCPSocket;
 public:
-	TCPDiagnosticServer(boost::asio::io_service& io_service, const uint16_t& port, ConnectionsController* connectionsController);
+	TCPDiagnosticServer(boost::asio::io_service& io_service, const Port& port, ConnectionsController* connectionsController);
 
 private:
 	void startAccepting();
