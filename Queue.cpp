@@ -48,3 +48,8 @@ bool Queue::isActive() const {
 	return active;
 }
 
+size_t Queue::getFreeSpace() const {
+	return size - end;
+}
+
+

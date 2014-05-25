@@ -22,6 +22,7 @@ public:
 	void consume(const size_t& qty);
 	Stats getStats();
 	bool isActive() const;
+	size_t getFreeSpace() const;
 
 private:
 	size_t size, end, minSize, maxSize, lowMark, highMark;

@@ -26,6 +26,7 @@ public:
 	void registerUDPClient(const ClientId& clientId, const boost::asio::ip::udp::endpoint& endpoint);
 	void removeClient(ClientContainer::iterator iter);
 	ClientContainer& getClients();
+	const IdContainer& getIds() const;
 	std::list<Queue*> getQueues(bool activeOnly=false) const;
 
 private:

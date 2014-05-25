@@ -49,6 +49,10 @@ ConnectionsController::ClientContainer& ConnectionsController::getClients() {
 	return clientsMap;
 }
 
+const ConnectionsController::IdContainer& ConnectionsController::getIds() const {
+	return idMap;
+}
+
 list<Queue*> ConnectionsController::getQueues(bool activeOnly) const {
 	list<Queue*> res;
 	for (const auto& k: clientsMap) {
