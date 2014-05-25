@@ -10,6 +10,10 @@
 using std::string;
 using namespace boost;
 
+class ProblematicConnectionException : public std::exception {
+	const char* what() const noexcept { return "The connection is problematic. Retrying..."; }
+};
+
 UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint& targetEndpoint)
 : socket{io_service}
 , targetEndpoint{targetEndpoint}
@@ -113,7 +117,7 @@ void UDPClient::sendKeepalive() {
 
 void UDPClient::checkConnection() {
 	if (!isAlive)
-		throw std::exception(); //FIXME: problematic connection
+		throw ProblematicConnectionException();
 
 	isAlive = false;
 
