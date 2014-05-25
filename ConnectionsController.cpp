@@ -6,11 +6,14 @@
 
 using std::shared_ptr;
 
-ConnectionsController::ConnectionsController()
-: nextId{0} {}
+ConnectionsController::ConnectionsController(const size_t& fifoSize, const size_t& fifoLow, const size_t& fifoHigh)
+: nextId{0}
+, fifoSize{fifoSize}
+, fifoLow{fifoLow}
+, fifoHigh{fifoHigh} {}
 
 ClientId ConnectionsController::registerTCPClient(shared_ptr< boost::asio::ip::tcp::socket > socket) {
-	auto ptr = shared_ptr<ClientInfo>{new ClientInfo{}};
+	auto ptr = shared_ptr<ClientInfo>{new ClientInfo{fifoSize}};
 	ptr->tcpSocket = socket;
 	clientsMap[nextId++] = ptr;
 	logger::info << "New client with id " << nextId - 1 << "\n";

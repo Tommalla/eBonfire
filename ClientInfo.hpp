@@ -7,9 +7,15 @@
 
 #include <boost/asio.hpp>
 
+#include "Queue.hpp"
+
 struct ClientInfo {
+	ClientInfo(const size_t& fifoSize)
+	: queue{fifoSize} {}
+
 	std::shared_ptr<boost::asio::ip::tcp::socket> tcpSocket;
 	boost::asio::ip::udp::endpoint udpEndpoint;
+	Queue queue;
 };
 
 #endif // CLIENT_INFO_HPP
