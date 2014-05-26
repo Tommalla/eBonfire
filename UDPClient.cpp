@@ -63,63 +63,66 @@ void UDPClient::startReceive() {
 }
 
 void UDPClient::handleReceive(const system::error_code& error, std::size_t length) {
-	const char* data = receiveBuffer.data();
-	std::istringstream input(data);
-	string command;
+	if (!error && equal(remoteEndpoint, targetEndpoint)) {
+		const char* data = receiveBuffer.data();
+		std::istringstream input(data);
+		string command;
 
-	input >> command;
-	isAlive = true;
+		input >> command;
+		isAlive = true;
 
-	if (command == "DATA") {
-		size_t nr, newAck, newWin;
-		input >> nr >> newAck >> newWin;
+		if (command == "DATA") {
+			size_t nr, newAck, newWin;
+			input >> nr >> newAck >> newWin;
 
-		if (newAck >= lastAck) {
-			lastAck = newAck;
-			lastWin = newWin;
-		} else
-			logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
+			if (newAck >= lastAck) {
+				lastAck = newAck;
+				lastWin = newWin;
+			} else
+				logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
 
-		if (nr > nrMaxSeen)
-			nrMaxSeen = nr;
+			if (nr > nrMaxSeen)
+				nrMaxSeen = nr;
 
-		if (lastData + 1 < nr && lastData + 1 >= nr - retransmitLimit && dataReceived && nr == nrMaxSeen) {
-			logger::warn << "Haven't received datagram " << lastData + 1 << " asking to RETRANSMIT\n";
-			string msg = "RETRANSMIT " + to_string(lastData + 1) + "\n";
-			socket.send_to(boost::asio::buffer(msg), remoteEndpoint);
-		} else if (lastData + 1 <= nr) {
-			lastData = nr;
-			dataReceived = true;
+			if (lastData + 1 < nr && lastData + 1 >= nr - retransmitLimit && dataReceived && nr == nrMaxSeen) {
+				logger::warn << "Haven't received datagram " << lastData + 1 << " asking to RETRANSMIT\n";
+				string msg = "RETRANSMIT " + to_string(lastData + 1) + "\n";
+				socket.send_to(boost::asio::buffer(msg), remoteEndpoint);
+			} else if (lastData + 1 <= nr) {
+				lastData = nr;
+				dataReceived = true;
 
-			auto pos = std::find(data, data + length, '\n');
-			if (pos == data + length)
-				logger::warn << "Received bad DATA.";
-			else
-				std::cout << string{pos + 1, data + length};
+				auto pos = std::find(data, data + length, '\n');
+				if (pos == data + length)
+					logger::warn << "Received bad DATA.";
+				else
+					std::cout << string{pos + 1, data + length};
+			}
+
+			if (lastAck == lastId && lastWin > 0 && !isReading)
+				readInput();
+			else if (lastAck < lastId && ++dataQty >= 2) {
+				logger::warn << "Resending data to server\n";
+				socket.send_to(boost::asio::buffer(lastInput), targetEndpoint);
+				dataQty = 0;
+			}
+		} else if (command == "ACK") {
+			size_t newAck, newWin;
+			input >> newAck >> newWin;
+
+			if (newAck >= lastAck) {
+				lastAck = newAck;
+				lastWin = newWin;
+			} else
+				logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
+
+			if (lastAck == lastId && lastWin > 0 && !isReading)
+				readInput();
+		} else {
+			logger::warn << "Bad message: " << command << '\n';
 		}
-
-		if (lastAck == lastId && lastWin > 0 && !isReading)
-			readInput();
-		else if (lastAck < lastId && ++dataQty >= 2) {
-			logger::warn << "Resending data to server\n";
-			socket.send_to(boost::asio::buffer(lastInput), targetEndpoint);
-			dataQty = 0;
-		}
-	} else if (command == "ACK") {
-		size_t newAck, newWin;
-		input >> newAck >> newWin;
-
-		if (newAck >= lastAck) {
-			lastAck = newAck;
-			lastWin = newWin;
-		} else
-			logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
-
-		if (lastAck == lastId && lastWin > 0 && !isReading)
-			readInput();
-	} else {
-		logger::warn << "Bad message: " << command << '\n';
-	}
+	} else
+		logger::warn << "UDP DATAGRAM from " << remoteEndpoint.address().to_string() << " wanted: " << targetEndpoint.address().to_string();
 
 	startReceive();
 }
@@ -168,4 +171,17 @@ void UDPClient::checkConnection() {
 
 	connectionTimer.expires_from_now(boost::posix_time::seconds(1));
 	connectionTimer.async_wait(boost::bind(&UDPClient::checkConnection, this));
+}
+
+bool UDPClient::equal(asio::ip::udp::endpoint a, asio::ip::udp::endpoint b) const {
+	if (a.address().is_v4() == b.address().is_v4())
+		return a.address() == b.address();
+
+	string aStr = a.address().to_string();
+	string bStr = b.address().to_string();
+
+	if (b.address().is_v4())
+		std::swap(a, b);
+
+	return "::ffff:" + a.address().to_string() == b.address().to_string();
 }

@@ -26,6 +26,7 @@ private:
 	void handleEndReadInput(const boost::system::error_code& error, size_t size);
 	void sendKeepalive();
 	void checkConnection();
+	bool equal(boost::asio::ip::udp::endpoint a, boost::asio::ip::udp::endpoint b) const;
 
 	boost::asio::ip::udp::socket socket;
 	boost::asio::ip::udp::endpoint remoteEndpoint, targetEndpoint;
