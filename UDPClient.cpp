@@ -25,7 +25,10 @@ UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint
 , retransmitLimit{retransmitLimit}
 , lastData{0}
 , lastId{0}
+, lastAck{0}
+, lastWin{0}
 , nrMaxSeen{0}
+, dataQty{0}
 , keepaliveTimer{io_service, boost::posix_time::milliseconds(100)}
 , connectionTimer{io_service, boost::posix_time::seconds(1)} {
 	socket.open(asio::ip::udp::v6());
@@ -68,9 +71,17 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 	isAlive = true;
 
 	if (command == "DATA") {
-		size_t nr;
-		input >> nr >> lastAck >> lastWin;
-		nrMaxSeen = std::max(nrMaxSeen, nr);
+		size_t nr, newAck, newWin;
+		input >> nr >> newAck >> newWin;
+
+		if (newAck >= lastAck) {
+			lastAck = newAck;
+			lastWin = newWin;
+		} else
+			logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
+
+		if (nr > nrMaxSeen)
+			nrMaxSeen = nr;
 
 		if (lastData + 1 < nr && lastData + 1 >= nr - retransmitLimit && dataReceived && nr == nrMaxSeen) {
 			logger::warn << "Haven't received datagram " << lastData + 1 << " asking to RETRANSMIT\n";
@@ -83,19 +94,26 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 			auto pos = std::find(data, data + length, '\n');
 			if (pos == data + length)
 				logger::warn << "Received bad DATA.";
-			else {
+			else
 				std::cout << string{pos + 1, data + length};
-				// 			logger::info << "Received DATA ld:" << lastData << " ACK: " << lastAck << " win: " << lastWin << "\n" << data <<"\n";
-			}
-
-			// 		else if (lastAck < lastId)
 		}
 
 		if (lastAck == lastId && lastWin > 0 && !isReading)
 			readInput();
+		else if (lastAck < lastId && ++dataQty >= 2) {
+			logger::warn << "Resending data to server\n";
+			socket.send_to(boost::asio::buffer(lastInput), targetEndpoint);
+			dataQty = 0;
+		}
 	} else if (command == "ACK") {
-		input >> lastAck >> lastWin;
-		logger::info << "Got ACK on " << lastAck << " with win: " << lastWin << "\n";
+		size_t newAck, newWin;
+		input >> newAck >> newWin;
+
+		if (newAck >= lastAck) {
+			lastAck = newAck;
+			lastWin = newWin;
+		} else
+			logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
 
 		if (lastAck == lastId && lastWin > 0 && !isReading)
 			readInput();
@@ -126,8 +144,10 @@ void UDPClient::handleEndReadInput(const system::error_code& error, size_t size)
 		logger::info << "UPLOADING...\n";
 
 		socket.send_to(boost::asio::buffer(head + data), targetEndpoint);
-		lastId++;
+		lastInput = head + data;
 
+		dataQty = 0;
+		lastId++;
 		isReading = false;
 	} else
 		logger::warn << "Error on reading input: " << error.message() << "\n";

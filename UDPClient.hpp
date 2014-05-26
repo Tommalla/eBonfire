@@ -34,7 +34,9 @@ private:
 	boost::asio::posix::stream_descriptor dataInput;
 	bool isReading, isAlive, dataReceived;;
 	size_t retransmitLimit, lastData, lastId, lastAck, lastWin, nrMaxSeen;
+	uint8_t dataQty;
 	boost::asio::deadline_timer keepaliveTimer, connectionTimer;
+	std::string lastInput;
 };
 
 #endif // UDP_CLIENT_HPP
