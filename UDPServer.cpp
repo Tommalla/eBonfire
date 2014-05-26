@@ -3,10 +3,12 @@
  */
 #include "UDPServer.hpp"
 #include "logger.hpp"
+#include <boost/concept_check.hpp>
 
 using std::istringstream;
 using std::string;
 using std::to_string;
+using std::shared_ptr;
 using namespace boost::asio::ip;
 
 UDPServer::UDPServer(boost::asio::io_service& io_service, const Port& port, const size_t& bufferLength, ConnectionsController* connectionsController)
@@ -21,16 +23,12 @@ void UDPServer::handleDataProduced(string data) {
 	auto& clients = connectionsController->getClients();
 	for (auto client: clients)
 		if (client.second->isUDPReady) {
-			logger::info << "Sending DATA with win: " << client.second->queue.getFreeSpace() << "\n";
-			string header = "DATA " + to_string(nextDataId)
-				+ " " + to_string(client.second->ack) + " " + to_string(client.second->queue.getFreeSpace()) + "\n";
-			socket.send_to(boost::asio::buffer(header + data), client.second->udpEndpoint);
+			sendData(data, nextDataId, client.second);
 		}
 
-	serverBuffer[nextDataId] = data;
-	auto iter = serverBuffer.find(nextDataId - bufferLength);
-	if (iter != serverBuffer.end())	//remove too old data
-		serverBuffer.erase(iter);
+	serverBuffer.push_back({nextDataId, data});
+	while (serverBuffer.size() > bufferLength)
+		serverBuffer.pop_front();
 	nextDataId++;
 }
 
@@ -79,7 +77,10 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 					socket.send_to(boost::asio::buffer(response), remoteEndpoint);
 				}
 			} else if (command == "RETRANSMIT") {
-			//TODO
+				size_t begin;
+				input >> begin;
+
+				retransmit(begin, remoteEndpoint);
 			} else if (command == "KEEPALIVE") {
 			} else
 				logger::warn << "Bad message: " << command << "\n";
@@ -87,4 +88,18 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 
 	}
 	startReceive();
+}
+
+void UDPServer::retransmit(const size_t& begin, const udp::endpoint& endpoint) {
+	auto client = connectionsController->getClients().at(connectionsController->getIds().at(endpoint));
+	for (const auto& p: serverBuffer)
+		if (p.first >= begin)
+			sendData(p.second, p.first, client);
+}
+
+void UDPServer::sendData(const string& data, const size_t& id, const shared_ptr< ClientInfo >& client) {
+	logger::info << "Sending DATA with id: " << id << " win: " << client->queue.getFreeSpace() << "\n";
+	string header = "DATA " + to_string(id) + " " + to_string(client->ack) + " "
+		+ to_string(client->queue.getFreeSpace()) + "\n";
+	socket.send_to(boost::asio::buffer(header + data), client->udpEndpoint);
 }

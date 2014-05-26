@@ -8,19 +8,24 @@
 #include "UDPClient.hpp"
 
 using std::string;
+using std::to_string;
 using namespace boost;
 
 class ProblematicConnectionException : public std::exception {
 	const char* what() const noexcept { return "The connection is problematic. Retrying..."; }
 };
 
-UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint& targetEndpoint)
+UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint& targetEndpoint, const size_t& retransmitLimit)
 : socket{io_service}
 , targetEndpoint{targetEndpoint}
 , dataInput{io_service, ::dup(STDIN_FILENO)}
 , isReading{false}
 , isAlive{true}
+, dataReceived{false}
+, retransmitLimit{retransmitLimit}
+, lastData{0}
 , lastId{0}
+, nrMaxSeen{0}
 , keepaliveTimer{io_service, boost::posix_time::milliseconds(100)}
 , connectionTimer{io_service, boost::posix_time::seconds(1)} {
 	socket.open(asio::ip::udp::v6());
@@ -63,14 +68,27 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 	isAlive = true;
 
 	if (command == "DATA") {
-		input >> lastData >> lastAck >> lastWin;
+		size_t nr;
+		input >> nr >> lastAck >> lastWin;
+		nrMaxSeen = std::max(nrMaxSeen, nr);
 
-		auto pos = std::find(data, data + length, '\n');
-		if (pos == data + length)
-			logger::warn << "Received bad DATA.";
-		else {
-			std::cout << string{pos + 1, data + length};
-// 			logger::info << "Received DATA ld:" << lastData << " ACK: " << lastAck << " win: " << lastWin << "\n" << data <<"\n";
+		if (lastData + 1 < nr && lastData + 1 >= nr - retransmitLimit && dataReceived && nr == nrMaxSeen) {
+			logger::warn << "Haven't received datagram " << lastData + 1 << " asking to RETRANSMIT\n";
+			string msg = "RETRANSMIT " + to_string(lastData + 1) + "\n";
+			socket.send_to(boost::asio::buffer(msg), remoteEndpoint);
+		} else if (lastData + 1 <= nr) {
+			lastData = nr;
+			dataReceived = true;
+
+			auto pos = std::find(data, data + length, '\n');
+			if (pos == data + length)
+				logger::warn << "Received bad DATA.";
+			else {
+				std::cout << string{pos + 1, data + length};
+				// 			logger::info << "Received DATA ld:" << lastData << " ACK: " << lastAck << " win: " << lastWin << "\n" << data <<"\n";
+			}
+
+			// 		else if (lastAck < lastId)
 		}
 
 		if (lastAck == lastId && lastWin > 0 && !isReading)

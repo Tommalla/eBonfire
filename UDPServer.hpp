@@ -3,8 +3,6 @@
  */
 #ifndef UDP_SERVER_HPP
 #define UDP_SERVER_HPP
-#include <vector>
-
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -20,6 +18,8 @@ public:
 private:
 	void startReceive();
 	void handleReceive(const boost::system::error_code& error, std::size_t size);
+	void retransmit(const size_t& begin, const boost::asio::ip::udp::endpoint& endpoint);
+	void sendData(const std::string& data, const size_t& id, const std::shared_ptr< ClientInfo >& client);
 
 	ConnectionsController* connectionsController;
 	boost::asio::ip::udp::socket socket;
@@ -27,7 +27,7 @@ private:
 	boost::array<char, 1<<16> messageBuffer;
 	const size_t bufferLength;
 	size_t nextDataId;
-	std::unordered_map<size_t, std::string> serverBuffer;
+	std::list<std::pair<size_t, std::string>> serverBuffer;
 };
 
 #endif // UDP_SERVER_HPP

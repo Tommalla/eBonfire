@@ -19,7 +19,7 @@ using namespace boost;
 int main(int argc, char** argv) {
 	string serverName;
 	Port port;
-	uint16_t retransmitLimit;
+	size_t retransmitLimit;
 	program_options::options_description description("Program options");
 
 	try {
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 		("help,h", "help")
 		(",p", program_options::value<Port>(&port)->default_value(10000 + (336079 % 10000)), "port number")
 		(",s", program_options::value<string>(&serverName)->required(), "server address")
-		(",X", program_options::value<uint16_t>(&retransmitLimit)->default_value(10), "retransmit limit");
+		(",X", program_options::value<size_t>(&retransmitLimit)->default_value(10), "retransmit limit");
 
 		program_options::variables_map vars;
 		program_options::store(program_options::parse_command_line(argc, argv, description), vars);
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 						boost::asio::ip::resolver_query_base::flags()};
 						asio::ip::udp::resolver::iterator udpIter = udpResolver.resolve(udpQuery);
 
-						UDPClient udpClient{io_service, *udpIter};
+						UDPClient udpClient{io_service, *udpIter, retransmitLimit};
 						TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
 
 						io_service.run();

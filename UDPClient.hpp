@@ -14,7 +14,7 @@
 
 class UDPClient {
 public:
-	UDPClient(boost::asio::io_service& io_service, const boost::asio::ip::udp::endpoint& targetEndpoint);
+	UDPClient(boost::asio::io_service& io_service, const boost::asio::ip::udp::endpoint& targetEndpoint, const size_t& retransmitLimit);
 	void initUDP(const ClientId& clientId);
 
 private:
@@ -32,8 +32,8 @@ private:
 	boost::array<char, 1<<16> receiveBuffer;
 	boost::array<char, 12000> inputBuffer;
 	boost::asio::posix::stream_descriptor dataInput;
-	bool isReading, isAlive;
-	size_t lastData, lastId, lastAck, lastWin;
+	bool isReading, isAlive, dataReceived;;
+	size_t retransmitLimit, lastData, lastId, lastAck, lastWin, nrMaxSeen;
 	boost::asio::deadline_timer keepaliveTimer, connectionTimer;
 };
 
