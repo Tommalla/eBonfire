@@ -3,6 +3,8 @@
  */
 #ifndef UDP_SERVER_HPP
 #define UDP_SERVER_HPP
+#include <queue>
+
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -20,6 +22,8 @@ private:
 	void handleReceive(const boost::system::error_code& error, std::size_t size);
 	void retransmit(const size_t& begin, const boost::asio::ip::udp::endpoint& endpoint);
 	void sendData(const std::string& data, const size_t& id, const std::shared_ptr< ClientInfo >& client);
+	void addToSend(const std::string& msg, const boost::asio::ip::udp::endpoint& endpoint);
+	void sendMessage();
 
 	ConnectionsController* connectionsController;
 	boost::asio::ip::udp::socket socket;
@@ -28,6 +32,8 @@ private:
 	const size_t bufferLength;
 	size_t nextDataId;
 	std::list<std::pair<size_t, std::string>> serverBuffer;
+	std::queue<std::pair<boost::asio::ip::udp::endpoint, std::string>> messagesQueue;
+	bool isSending;
 };
 
 #endif // UDP_SERVER_HPP

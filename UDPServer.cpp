@@ -15,7 +15,8 @@ UDPServer::UDPServer(boost::asio::io_service& io_service, const Port& port, cons
 : connectionsController{connectionsController}
 , socket{io_service, udp::endpoint(udp::v6(), port)}
 , bufferLength{bufferLength}
-, nextDataId{0} {
+, nextDataId{0}
+, isSending{false} {
 	startReceive();
 }
 
@@ -74,7 +75,7 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 					client->ack = nr + 1;
 
 					string response = "ACK " + to_string(client->ack) + " " + to_string(client->queue.getFreeSpace()) + "\n";
-					socket.send_to(boost::asio::buffer(response), remoteEndpoint);
+					addToSend(response, remoteEndpoint);
 				}
 			} else if (command == "RETRANSMIT") {
 				size_t begin;
@@ -101,5 +102,28 @@ void UDPServer::sendData(const string& data, const size_t& id, const shared_ptr<
 	logger::info << "Sending DATA with id: " << id << " win: " << client->queue.getFreeSpace() << "\n";
 	string header = "DATA " + to_string(id) + " " + to_string(client->ack) + " "
 		+ to_string(client->queue.getFreeSpace()) + "\n";
-	socket.send_to(boost::asio::buffer(header + data), client->udpEndpoint);
+	addToSend(header + data, client->udpEndpoint);
 }
+
+void UDPServer::addToSend(const string& msg, const udp::endpoint& endpoint) {
+	messagesQueue.push({endpoint, msg});
+	if (!isSending)
+		sendMessage();
+}
+
+void UDPServer::sendMessage() {
+	if (isSending)
+		return;
+
+	isSending = true;
+
+	auto p = messagesQueue.front();
+	messagesQueue.pop();
+	socket.send_to(boost::asio::buffer(p.second), p.first);
+
+	if (!messagesQueue.empty())
+		sendMessage();
+	else
+		isSending = false;
+}
+
