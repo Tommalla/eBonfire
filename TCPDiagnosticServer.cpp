@@ -1,8 +1,6 @@
 /* Tomasz Zakrzewski, tz336079
  * SIK2013/2014, eBonfire
  */
-#include <list>
-
 #include <boost/lexical_cast.hpp>
 
 #include "TCPDiagnosticServer.hpp"

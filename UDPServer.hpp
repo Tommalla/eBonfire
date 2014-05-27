@@ -6,8 +6,8 @@
 #include <queue>
 
 #include <boost/array.hpp>
-#include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
 #include "common.hpp"
 #include "ConnectionsController.hpp"

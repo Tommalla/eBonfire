@@ -3,11 +3,9 @@
  */
 #ifndef TCP_DIAGNOSTIC_CLIENT_HPP
 #define TCP_DIAGNOSTIC_CLIENT_HPP
-#include <boost/array.hpp>
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-
 #include <functional>
+
+#include <boost/asio.hpp>
 
 class TCPDiagnosticClient {
 	typedef std::function<void(const uint32_t&)> CallbackType;

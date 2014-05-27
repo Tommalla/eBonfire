@@ -4,7 +4,6 @@
 #ifndef LOGGING_HPP
 #define LOGGING_HPP
 #include <iostream>
-#include <ostream>
 #include <string>
 
 namespace logger {

@@ -3,14 +3,15 @@
  */
 #include <functional>
 #include <iostream>
+
 #include <boost/program_options.hpp>
 
 #include "common.hpp"
+#include "ConnectionsController.hpp"
+#include "logger.hpp"
+#include "MixerController.hpp"
 #include "TCPDiagnosticServer.hpp"
 #include "UDPServer.hpp"
-#include "ConnectionsController.hpp"
-#include "MixerController.hpp"
-#include "logger.hpp"
 
 using std::cout;
 using namespace boost;

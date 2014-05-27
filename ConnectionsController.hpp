@@ -5,16 +5,14 @@
 #define CONNECTIONS_CONTROLLER_HPP
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
 
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
-#include "common.hpp"
 #include "ClientInfo.hpp"
+#include "common.hpp"
 
 class ConnectionsController {
 public:

@@ -2,6 +2,7 @@
  * SIK2013/2014, eBonfire
  */
 #include <cstdint>
+
 #include "mixer.hpp"
 
 void mixer(mixer_input* inputs, size_t n, void* output_buf, size_t* output_size, long unsigned int tx_interval_ms) {

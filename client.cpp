@@ -2,15 +2,14 @@
  * SIK2013/2014, eBonfire
  */
 #include <iostream>
-#include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 #include <boost/program_options.hpp>
-#include <boost/thread/thread.hpp>
 
 #include "common.hpp"
-#include "UDPClient.hpp"
-#include "TCPDiagnosticClient.hpp"
 #include "logger.hpp"
+#include "TCPDiagnosticClient.hpp"
+#include "UDPClient.hpp"
 
 using std::string;
 using std::cout;

@@ -1,11 +1,13 @@
-#include <cstdlib>
+/* Tomasz Zakrzewski, tz336079
+ * SIK2013/2014, eBonfire
+ */
 #include <iostream>
-#include <string>
-#include <sstream>
 
-#include "TCPDiagnosticClient.hpp"
+#include <boost/bind.hpp>
+
 #include "logger.hpp"
 #include "ProblematicConnectionException.hpp"
+#include "TCPDiagnosticClient.hpp"
 
 using std::string;
 using std::istringstream;

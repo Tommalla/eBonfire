@@ -3,7 +3,6 @@
  */
 #ifndef TCP_DIAGNOSTIC_SERVER_HPP
 #define TCP_DIAGNOSTIC_SERVER_HPP
-#include <functional>
 #include <memory>
 
 #include <boost/asio.hpp>

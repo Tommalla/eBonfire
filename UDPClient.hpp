@@ -3,11 +3,8 @@
  */
 #ifndef UDP_CLIENT_HPP
 #define UDP_CLIENT_HPP
-
-#include <ctime>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 
 #include "common.hpp"
@@ -21,8 +18,7 @@ public:
 private:
 	void handleClientStarted(const boost::system::error_code& error /*bytes_transferred*/);
 	void startReceive();
-	void handleReceive(const boost::system::error_code& error,
-		    std::size_t length);
+	void handleReceive(const boost::system::error_code& error, std::size_t length);
 	void readInput();
 	void handleEndReadInput(const boost::system::error_code& error, size_t size);
 	void sendKeepalive();
@@ -32,7 +28,7 @@ private:
 	boost::asio::ip::udp::socket socket;
 	boost::asio::ip::udp::endpoint remoteEndpoint, targetEndpoint;
 	boost::array<char, 1<<16> receiveBuffer;
-	boost::array<char, 12000> inputBuffer;
+	boost::array<char, (1<<16) - 1> inputBuffer;
 	boost::asio::posix::stream_descriptor dataInput;
 	bool isReading, isAlive, dataReceived;;
 	size_t retransmitLimit, lastData, lastId, lastAck, lastWin, nrMaxSeen;

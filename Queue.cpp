@@ -1,8 +1,9 @@
 /* Tomasz Zakrzewski, tz336079
  * SIK2013/2014, eBonfire
  */
+#include <algorithm>
 #include <cstring>
-#include <boost/concept_check.hpp>
+
 #include "Queue.hpp"
 
 Queue::Queue(const size_t& size, const size_t& lowMark, const size_t& highMark)

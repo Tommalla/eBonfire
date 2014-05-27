@@ -1,9 +1,8 @@
 /* Tomasz Zakrzewski, tz336079
  * SIK2013/2014, eBonfire
  */
-#include "UDPServer.hpp"
 #include "logger.hpp"
-#include <boost/concept_check.hpp>
+#include "UDPServer.hpp"
 
 using std::istringstream;
 using std::string;
