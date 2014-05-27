@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
 	program_options::options_description description("Program options");
 	description.add_options()
 	("help,h", "help")
-	(",p", program_options::value<Port>(&port)->default_value(10000 + (336079 % 10000)), "port number")
-	(",F", program_options::value<size_t>(&fifoSize)->default_value(10560), "FIFO size")
+	(",p", program_options::value<Port>(&port)->default_value(defaultPort), "port number")
+	(",F", program_options::value<size_t>(&fifoSize)->default_value(defaultFifoSize), "FIFO size")
 	(",L", program_options::value<size_t>(&fifoLow)->default_value(0), "FIFO low watermark")
 	(",H", program_options::value<size_t>(), "FIFO high watermark")
-	(",X", program_options::value<size_t>(&bufferLength)->default_value(10), "buffer length")
-	(",i", program_options::value<uint16_t>(&txInterval)->default_value(5), "tx interval");
+	(",X", program_options::value<size_t>(&bufferLength)->default_value(defaultBufferLength), "buffer length")
+	(",i", program_options::value<uint16_t>(&txInterval)->default_value(defaultTXInterval), "tx interval");
 
 	program_options::variables_map vm;
 	program_options::store(program_options::parse_command_line(argc, argv, description), vm);

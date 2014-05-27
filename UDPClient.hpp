@@ -11,6 +11,7 @@
 #include <boost/asio.hpp>
 
 #include "common.hpp"
+#include "ProblematicConnectionException.hpp"
 
 class UDPClient {
 public:

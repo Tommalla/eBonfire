@@ -5,6 +5,7 @@
 
 #include "TCPDiagnosticClient.hpp"
 #include "logger.hpp"
+#include "ProblematicConnectionException.hpp"
 
 using std::string;
 using std::istringstream;
@@ -24,7 +25,7 @@ void TCPDiagnosticClient::handleConnect(const boost::system::error_code& error) 
 					      boost::bind(&TCPDiagnosticClient::handleHeader, this,
 							  boost::asio::placeholders::error));
 	} else {
-		throw std::exception();
+		throw ProblematicConnectionException();
 	}
 }
 
@@ -42,7 +43,7 @@ void TCPDiagnosticClient::handleHeader(const boost::system::error_code& error) {
 		message_buffer.consume(message_buffer.size());
 		getNextMessage();
 	} else
-		throw std::exception();
+		throw ProblematicConnectionException();
 }
 
 void TCPDiagnosticClient::getNextMessage() {
@@ -61,6 +62,6 @@ void TCPDiagnosticClient::handleMessage(const boost::system::error_code& error) 
 
 		getNextMessage();
 	} else {
-		throw std::exception();
+		throw ProblematicConnectionException();
 	}
 }

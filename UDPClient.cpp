@@ -11,10 +11,6 @@ using std::string;
 using std::to_string;
 using namespace boost;
 
-class ProblematicConnectionException : public std::exception {
-	const char* what() const noexcept { return "The connection is problematic. Retrying..."; }
-};
-
 UDPClient::UDPClient(asio::io_service& io_service, const asio::ip::udp::endpoint& targetEndpoint, const size_t& retransmitLimit)
 : socket{io_service}
 , targetEndpoint{targetEndpoint}
@@ -50,8 +46,10 @@ void UDPClient::initUDP(const ClientId& clientId) {
 void UDPClient::handleClientStarted(const system::error_code& error) {
 	if (!error)
 		startReceive();
-	else
-		logger::error << "Error in handleClientStarted\n";
+	else {
+		logger::error << "Error initializing UDP connection with server: " << error.message() << "\n";
+		throw ProblematicConnectionException();
+	}
 }
 
 void UDPClient::startReceive() {
@@ -114,14 +112,14 @@ void UDPClient::handleReceive(const system::error_code& error, std::size_t lengt
 				lastAck = newAck;
 				lastWin = newWin;
 			} else
-				logger::warn << "Received an ACK smaller than the known: " << newAck << "\n";
+				logger::warn << "Received an ACK smaller than the known: " << newAck << ", known: " << lastAck << "\n";
 
 			if (lastAck == lastId && lastWin > 0 && !isReading)
 				readInput();
 		} else {
 			logger::warn << "Bad message: " << command << '\n';
 		}
-	} else
+	} else	//FIXME if not equal
 		logger::warn << "UDP DATAGRAM from " << remoteEndpoint.address().to_string() << " wanted: " << targetEndpoint.address().to_string();
 
 	startReceive();
@@ -132,7 +130,6 @@ void UDPClient::readInput() {
 		return;
 
 	isReading = true;
-	logger::info << "Reading from file " << lastWin << "bytes\n";
 	boost::asio::async_read(dataInput,
 				boost::asio::buffer(inputBuffer, std::min(inputBuffer.size(), (size_t)lastWin)),
 				boost::bind(&UDPClient::handleEndReadInput, this,
@@ -144,7 +141,6 @@ void UDPClient::handleEndReadInput(const system::error_code& error, size_t size)
 	if (!error) {
 		string data(inputBuffer.begin(), inputBuffer.begin() + size);
 		string head = "UPLOAD " + std::to_string(lastId) + "\n";
-		logger::info << "UPLOADING...\n";
 
 		socket.send_to(boost::asio::buffer(head + data), targetEndpoint);
 		lastInput = head + data;

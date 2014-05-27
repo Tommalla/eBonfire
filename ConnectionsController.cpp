@@ -36,13 +36,16 @@ void ConnectionsController::registerUDPClient(const ClientId& clientId, const bo
 	client->isUDPReady = true;
 	idMap[endpoint] = clientId;
 
-	logger::info << "Register client's " << clientId << " UDP endpoint\n";
+	logger::info << "Registered client's " << clientId << " UDP endpoint\n";
 }
 
 void ConnectionsController::removeClient(ClientContainer::iterator iter) {
 	auto it = idMap.find(iter->second->udpEndpoint);
 	logger::info << "Removing client " << it->second << "\n";
-	idMap.erase(it);
+
+	if (it != idMap.end())
+		idMap.erase(it);
+
 	clientsMap.erase(iter);
 }
 

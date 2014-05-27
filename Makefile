@@ -13,13 +13,13 @@ client: UDPClient.o TCPDiagnosticClient.o client.cpp $(COMMON)
 server: UDPServer.o TCPDiagnosticServer.o ConnectionsController.o Queue.o MixerController.o mixer.o server.cpp $(COMMON)
 	g++ $(CXX_FLAGS) server.cpp UDPServer.o TCPDiagnosticServer.o ConnectionsController.o Queue.o MixerController.o mixer.o -o server
 
-UDPClient.o: UDPClient.hpp UDPClient.cpp $(COMMON)
+UDPClient.o: ProblematicConnectionException.hpp UDPClient.hpp UDPClient.cpp $(COMMON)
 	g++ $(CXX_FLAGS) -c UDPClient.cpp -o UDPClient.o
 
 UDPServer.o: UDPServer.hpp UDPServer.cpp $(COMMON)
 	g++ $(CXX_FLAGS) -c UDPServer.cpp -o UDPServer.o
 
-TCPDiagnosticClient.o: TCPDiagnosticClient.hpp TCPDiagnosticClient.cpp $(COMMON)
+TCPDiagnosticClient.o: ProblematicConnectionException.hpp TCPDiagnosticClient.hpp TCPDiagnosticClient.cpp $(COMMON)
 	g++ $(CXX_FLAGS) -c TCPDiagnosticClient.cpp -o TCPDiagnosticClient.o
 
 TCPDiagnosticServer.o: TCPDiagnosticServer.hpp TCPDiagnosticServer.cpp $(COMMON)

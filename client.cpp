@@ -25,9 +25,9 @@ int main(int argc, char** argv) {
 	try {
 		description.add_options()
 		("help,h", "help")
-		(",p", program_options::value<Port>(&port)->default_value(10000 + (336079 % 10000)), "port number")
+		(",p", program_options::value<Port>(&port)->default_value(defaultPort), "port number")
 		(",s", program_options::value<string>(&serverName)->required(), "server address")
-		(",X", program_options::value<size_t>(&retransmitLimit)->default_value(10), "retransmit limit");
+		(",X", program_options::value<size_t>(&retransmitLimit)->default_value(defaultRetransmitLimit), "retransmit limit");
 
 		program_options::variables_map vars;
 		program_options::store(program_options::parse_command_line(argc, argv, description), vars);
@@ -42,29 +42,24 @@ int main(int argc, char** argv) {
 		logger::info << "SERVER: " << serverName << "\n" << "PORT: "
 		<< port << " " << "RETRANSMIT LIMIT: " << retransmitLimit << "\n";
 
-
-		//TODO
-		// retransmission
-
 		while (true) {
-			try
-			{
+			try {
 				asio::io_service io_service;
 
 				asio::ip::tcp::resolver tcpResolver{io_service};
 				asio::ip::tcp::resolver::query tcpQuery{serverName, boost::lexical_cast<string>(port),
 					boost::asio::ip::resolver_query_base::flags()};
-					asio::ip::tcp::resolver::iterator tcpIter = tcpResolver.resolve(tcpQuery);
+				asio::ip::tcp::resolver::iterator tcpIter = tcpResolver.resolve(tcpQuery);
 
-					asio::ip::udp::resolver udpResolver{io_service};
-					asio::ip::udp::resolver::query udpQuery{serverName, boost::lexical_cast<string>(port),
-						boost::asio::ip::resolver_query_base::flags()};
-						asio::ip::udp::resolver::iterator udpIter = udpResolver.resolve(udpQuery);
+				asio::ip::udp::resolver udpResolver{io_service};
+				asio::ip::udp::resolver::query udpQuery{serverName, boost::lexical_cast<string>(port),
+					boost::asio::ip::resolver_query_base::flags()};
+				asio::ip::udp::resolver::iterator udpIter = udpResolver.resolve(udpQuery);
 
-						UDPClient udpClient{io_service, *udpIter, retransmitLimit};
-						TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
+				UDPClient udpClient{io_service, *udpIter, retransmitLimit};
+				TCPDiagnosticClient tcpClient{io_service, tcpIter, std::bind(&UDPClient::initUDP, &udpClient, std::placeholders::_1)};
 
-						io_service.run();
+				io_service.run();
 			} catch (std::exception& e) {
 				logger::error << e.what() << "\n";
 			}
@@ -74,7 +69,6 @@ int main(int argc, char** argv) {
 		logger::error << e.what() << "\n\n" << description << "\n";
 		return -1;
 	}
-
 
 	return 0;
 }

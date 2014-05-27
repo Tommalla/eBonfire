@@ -68,10 +68,12 @@ void TCPDiagnosticServer::sendStats() {
 		}
 	}
 
-	logger::info << "Sending to all clients: " << message;
+	if (message != "\n") {
+		logger::info << "Sending to all clients: " << message;
 
-	for (const auto &k: clients)
-		boost::asio::async_write(*k.second->tcpSocket, boost::asio::buffer(message), [](const boost::system::error_code&, size_t){});
+		for (const auto &k: clients)
+			boost::asio::async_write(*k.second->tcpSocket, boost::asio::buffer(message), [](const boost::system::error_code&, size_t){});
+	}
 
 	timer.expires_from_now(boost::posix_time::seconds(1));
 	timer.async_wait(boost::bind(&TCPDiagnosticServer::sendStats, this));

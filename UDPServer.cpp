@@ -65,17 +65,18 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 				else {
 					auto pos = std::find(data, data + size, '\n');
 					if (pos == data + size)
-						logger::warn << "Bad UPLOAD\n";
-					else
-						client->queue.addData(pos + 1, size - (pos - data + 1));
+						logger::warn << "Bad UPLOAD datagram\n";
+					else {
+						if (size - (pos - data + 1) <= client->queue.getFreeSpace()) {
+							client->queue.addData(pos + 1, size - (pos - data + 1));
 
-// 					logger::info << "Received " << size << " bytes of data from " << clientId->second << "\nSending ack for free space: " << client->queue.getFreeSpace() <<
-// 						" length: " << client->queue.getLength() << "\n";
+							client->ack = nr + 1;
 
-					client->ack = nr + 1;
-
-					string response = "ACK " + to_string(client->ack) + " " + to_string(client->queue.getFreeSpace()) + "\n";
-					addToSend(response, remoteEndpoint);
+							string response = "ACK " + to_string(client->ack) + " " + to_string(client->queue.getFreeSpace()) + "\n";
+							addToSend(response, remoteEndpoint);
+						} else
+							logger::warn << "Too much data from " << clientId->second << ". Dumping datagram...\n";
+					}
 				}
 			} else if (command == "RETRANSMIT") {
 				size_t begin;
@@ -101,7 +102,6 @@ void UDPServer::retransmit(const size_t& begin, const udp::endpoint& endpoint) {
 }
 
 void UDPServer::sendData(const string& data, const size_t& id, const shared_ptr< ClientInfo >& client) {
-	logger::info << "Sending DATA with id: " << id << " win: " << client->queue.getFreeSpace() << "\n";
 	string header = "DATA " + to_string(id) + " " + to_string(client->ack) + " "
 		+ to_string(client->queue.getFreeSpace()) + "\n";
 	addToSend(header + data, client->udpEndpoint);
@@ -128,4 +128,3 @@ void UDPServer::sendMessage() {
 	else
 		isSending = false;
 }
-
