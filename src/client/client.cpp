@@ -6,8 +6,8 @@
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 
-#include "common.hpp"
-#include "logger.hpp"
+#include "../common.hpp"
+#include "../logger.hpp"
 #include "TCPDiagnosticClient.hpp"
 #include "UDPClient.hpp"
 

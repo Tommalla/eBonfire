@@ -9,7 +9,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "ConnectionsController.hpp"
 
 class UDPServer {

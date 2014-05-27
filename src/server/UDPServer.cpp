@@ -1,7 +1,7 @@
 /* Tomasz Zakrzewski, tz336079
  * SIK2013/2014, eBonfire
  */
-#include "logger.hpp"
+#include "../logger.hpp"
 #include "UDPServer.hpp"
 
 using std::istringstream;

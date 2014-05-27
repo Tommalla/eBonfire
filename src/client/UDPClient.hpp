@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "ProblematicConnectionException.hpp"
 
 class UDPClient {

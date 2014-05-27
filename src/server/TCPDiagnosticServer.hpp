@@ -7,7 +7,7 @@
 
 #include <boost/asio.hpp>
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "ConnectionsController.hpp"
 
 class TCPDiagnosticServer {

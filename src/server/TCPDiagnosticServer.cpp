@@ -4,7 +4,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "TCPDiagnosticServer.hpp"
-#include "logger.hpp"
+#include "../logger.hpp"
 
 using std::list;
 using std::shared_ptr;

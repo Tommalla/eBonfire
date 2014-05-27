@@ -5,7 +5,7 @@
 
 #include <boost/bind.hpp>
 
-#include "logger.hpp"
+#include "../logger.hpp"
 #include "ProblematicConnectionException.hpp"
 #include "TCPDiagnosticClient.hpp"
 

@@ -2,7 +2,7 @@
  * SIK2013/2014, eBonfire
  */
 #include "ConnectionsController.hpp"
-#include "logger.hpp"
+#include "../logger.hpp"
 
 using std::shared_ptr;
 using std::list;

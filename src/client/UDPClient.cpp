@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "logger.hpp"
+#include "../logger.hpp"
 #include "UDPClient.hpp"
 
 using std::string;

@@ -1,5 +1,4 @@
-client
-server
+bin/
 
 # Compiled Object files
 *.slo

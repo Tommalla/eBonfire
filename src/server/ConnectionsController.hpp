@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 
 #include "ClientInfo.hpp"
-#include "common.hpp"
+#include "../common.hpp"
 
 class ConnectionsController {
 public:

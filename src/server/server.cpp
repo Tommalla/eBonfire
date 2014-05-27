@@ -6,9 +6,9 @@
 
 #include <boost/program_options.hpp>
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "ConnectionsController.hpp"
-#include "logger.hpp"
+#include "../logger.hpp"
 #include "MixerController.hpp"
 #include "TCPDiagnosticServer.hpp"
 #include "UDPServer.hpp"
