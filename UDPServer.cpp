@@ -83,6 +83,8 @@ void UDPServer::handleReceive(const boost::system::error_code& error, std::size_
 
 				retransmit(begin, remoteEndpoint);
 			} else if (command == "KEEPALIVE") {
+				auto client = connectionsController->getClients().at(clientId->second);
+				client->inactiveFor = 0;
 			} else
 				logger::warn << "Bad message: " << command << "\n";
 		}

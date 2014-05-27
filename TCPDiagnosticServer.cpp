@@ -55,7 +55,9 @@ void TCPDiagnosticServer::sendStats() {
 		string part = boost::lexical_cast<string>(iter->second->tcpSocket->remote_endpoint(error))
 			+ " " + statsString + "\n";
 
-		if (error) {
+		++iter->second->inactiveFor;
+
+		if (error || iter->second->inactiveFor >= 2) {
 			auto copy = iter;
 			++copy;
 			connectionsController->removeClient(iter);
